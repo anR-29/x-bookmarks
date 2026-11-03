@@ -6,7 +6,7 @@
   const els = {
     q: $('#q'), results: $('#results'), stats: $('#stats'), chips: $('#chips'), note: $('#note'),
     empty: $('#empty'), sentinel: $('#sentinel'), sort: $('#sort'), sidebar: $('#sidebar'), toast: $('#toast'),
-    banner: $('#importBanner'), help: $('#help'), drop: $('#dropzone'),
+    banner: $('#importBanner'), help: $('#help'),
   };
 
   const IMPORT_KEY = 'xbm-import';
@@ -510,7 +510,7 @@
           <li>Open <a href="https://x.com/i/bookmarks" target="_blank" rel="noopener">x.com/i/bookmarks</a> on a computer (logged in).</li>
           <li>Press <kbd>F12</kbd> → <b>Console</b>. Chrome may ask you to type <code>allow pasting</code> first.</li>
           <li>Paste the contents of <a href="export-bookmarks.js" target="_blank">export-bookmarks.js</a> and press <kbd>Enter</kbd>. It scrolls through everything and downloads <code>bookmarks.json</code>.</li>
-          <li>Drop that file on this page to preview it, or upload it to the repo root to publish it here.</li>
+          <li>Import that file below to preview it, or upload it to the repo root to publish it here.</li>
         </ol>
         <p><label class="btn" style="display:inline-block">Import bookmarks.json<input type="file" accept=".json,application/json" hidden data-import></label></p>`;
       els.empty.hidden = false;
@@ -684,14 +684,6 @@
   }
   document.addEventListener('change', e => {
     if (e.target.matches('#fileInput, [data-import]')) { importFile(e.target.files[0]); e.target.value = ''; }
-  });
-  let dragDepth = 0;
-  addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragDepth++; els.drop.hidden = false; } });
-  addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; els.drop.hidden = true; } });
-  addEventListener('dragover', e => e.preventDefault());
-  addEventListener('drop', e => {
-    e.preventDefault(); dragDepth = 0; els.drop.hidden = true;
-    importFile(e.dataTransfer?.files?.[0]);
   });
   $('#clearImport').addEventListener('click', async () => { store.del(IMPORT_KEY); await loadPublished(); run(); });
   $('#downloadNorm').addEventListener('click', () => {

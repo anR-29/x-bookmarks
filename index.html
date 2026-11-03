@@ -7,7 +7,7 @@
 <title>X Bookmarks</title>
 <meta name="description" content="All my X bookmarks — organized and searchable.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231d9bf0' d='M6 2h12a1 1 0 0 1 1 1v19l-7-4.5L5 22V3a1 1 0 0 1 1-1z'/></svg>">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 <script>
   try { const t = localStorage.getItem('xbm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
@@ -112,10 +112,9 @@
 </dialog>
 
 <div id="toast" class="toast" hidden></div>
-<div id="dropzone" class="dropzone" hidden><div>Drop your bookmarks JSON file</div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/umd/index.min.js"></script>
-<script src="categories.js"></script>
-<script src="app.js"></script>
+<script src="categories.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

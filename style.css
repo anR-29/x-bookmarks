@@ -190,11 +190,6 @@ dialog form { text-align: right; margin-top: 14px; }
   position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 50;
   background: var(--text); color: var(--bg); padding: 9px 18px; border-radius: 999px; font-size: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
 }
-.dropzone {
-  position: fixed; inset: 0; z-index: 60; background: color-mix(in srgb, var(--accent) 18%, transparent);
-  display: grid; place-items: center; pointer-events: none;
-}
-.dropzone div { background: var(--panel); padding: 22px 34px; border-radius: 16px; border: 2px dashed var(--accent); font-weight: 600; }
 
 .only-mobile { display: none; }
 
