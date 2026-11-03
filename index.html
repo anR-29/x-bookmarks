@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>X Bookmarks</title>
+<meta name="description" content="All my X bookmarks — organized and searchable.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231d9bf0' d='M6 2h12a1 1 0 0 1 1 1v19l-7-4.5L5 22V3a1 1 0 0 1 1-1z'/></svg>">
+<link rel="stylesheet" href="style.css">
+<script>
+  try { const t = localStorage.getItem('xbm-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="./" title="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4.5L5 22V3a1 1 0 0 1 1-1z"/></svg>
+      <span>Bookmarks</span>
+    </a>
+    <div class="search">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.13l4.24 4.23-1.42 1.42-4.23-4.24A7.5 7.5 0 1 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Search everything…  try  from:naval  has:video  cat:ai  &quot;exact phrase&quot;  -crypto">
+      <kbd class="slash">/</kbd>
+      <button id="helpBtn" class="icon-btn" title="Search syntax (?)" aria-label="Search syntax">?</button>
+    </div>
+    <div class="top-actions">
+      <button id="filtersBtn" class="btn ghost only-mobile">Filters</button>
+      <button id="randomBtn" class="icon-btn" title="Random bookmark (r)" aria-label="Random bookmark">
+        <svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4V8h-2.6l-2.2 2.9-1.25-1.66L13.4 6H17V3zM3 6h4.6l9.8 13H17v-3l4 4-4 4v-3h-1.6L5.6 8H3V6zm0 12h2.6l2.2-2.9 1.25 1.66L7.6 20H3v-2z"/></svg>
+      </button>
+      <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+      <label class="icon-btn" title="Import a bookmarks JSON file (preview locally)">
+        <svg viewBox="0 0 24 24"><path d="M11 4h2v8.6l3.3-3.3 1.4 1.4L12 16.4l-5.7-5.7 1.4-1.4 3.3 3.3V4zM5 18h14v2H5v-2z"/></svg>
+        <input id="fileInput" type="file" accept=".json,application/json" hidden>
+      </label>
+    </div>
+  </div>
+</header>
+
+<div id="importBanner" class="banner" hidden>
+  <span>Showing an <b>imported file</b> (only in this browser — not published).</span>
+  <button id="downloadNorm" class="btn ghost sm">Download as bookmarks.json</button>
+  <button id="clearImport" class="btn ghost sm">Back to published data</button>
+</div>
+
+<div class="layout">
+  <aside id="sidebar" class="sidebar">
+    <div class="side-head only-mobile">
+      <b>Filters</b><button id="closeFilters" class="icon-btn" aria-label="Close">✕</button>
+    </div>
+    <section class="facet">
+      <h3>Sort</h3>
+      <select id="sort">
+        <option value="auto">Best match / recently saved</option>
+        <option value="saved">Recently bookmarked</option>
+        <option value="saved-old">Oldest bookmarked</option>
+        <option value="new">Newest posted</option>
+        <option value="old">Oldest posted</option>
+        <option value="likes">Most liked</option>
+        <option value="views">Most viewed</option>
+      </select>
+    </section>
+    <section class="facet" data-facet="cat"><h3>Topics</h3><ul></ul></section>
+    <section class="facet" data-facet="type"><h3>Type</h3><ul></ul></section>
+    <section class="facet" data-facet="year"><h3>Year</h3><ul></ul></section>
+    <section class="facet" data-facet="domain">
+      <h3>Linked sites</h3>
+      <input class="facet-search" placeholder="Filter sites…">
+      <ul></ul>
+    </section>
+    <section class="facet" data-facet="author">
+      <h3>People</h3>
+      <input class="facet-search" placeholder="Filter people…">
+      <ul></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="stats" id="stats"></div>
+    <div class="chips" id="chips"></div>
+    <div class="note" id="note" hidden></div>
+    <div id="results" class="results"></div>
+    <div id="sentinel"></div>
+    <div id="empty" class="empty" hidden></div>
+  </main>
+</div>
+
+<dialog id="help">
+  <h2>Search syntax</h2>
+  <p class="muted">Words are matched across tweet text, author, quoted tweets, links, hashtags and topics — with typo tolerance and prefix matching (<code>pyth</code> finds “python”).</p>
+  <table>
+    <tr><td><code>react hooks</code></td><td>all words (falls back to any word)</td></tr>
+    <tr><td><code>"system design"</code></td><td>exact phrase</td></tr>
+    <tr><td><code>-crypto</code> <code>-"giveaway"</code></td><td>exclude</td></tr>
+    <tr><td><code>a OR b</code></td><td>either word</td></tr>
+    <tr><td><code>from:naval</code> <code>@naval</code></td><td>by author (handle or name)</td></tr>
+    <tr><td><code>has:media</code> <code>has:image</code> <code>has:video</code> <code>has:link</code> <code>has:quote</code> <code>has:thread</code> <code>has:long</code></td><td>content type</td></tr>
+    <tr><td><code>cat:ai</code> <code>cat:startups</code></td><td>topic</td></tr>
+    <tr><td><code>site:github.com</code> <code>site:youtube</code></td><td>linked website</td></tr>
+    <tr><td><code>after:2024-01-01</code> <code>before:2025</code> <code>year:2023</code></td><td>posted date</td></tr>
+    <tr><td><code>likes:1000</code></td><td>at least N likes</td></tr>
+    <tr><td><code>lang:hi</code></td><td>language</td></tr>
+  </table>
+  <h3>Keyboard</h3>
+  <p class="muted"><kbd>/</kbd> search · <kbd>Esc</kbd> clear · <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> open · <kbd>c</kbd> copy link · <kbd>r</kbd> random · <kbd>?</kbd> this help</p>
+  <form method="dialog"><button class="btn">Got it</button></form>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+<div id="dropzone" class="dropzone" hidden><div>Drop your bookmarks JSON file</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/minisearch@7.1.0/dist/umd/index.min.js"></script>
+<script src="categories.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
