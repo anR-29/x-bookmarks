@@ -62,6 +62,7 @@
       name: c.name,
       re: parts.length ? new RegExp(`(?<![\\p{L}\\p{N}_])(?:${parts.join('|')})(?![\\p{L}\\p{N}_])`, 'iu') : null,
       sites: (c.sites || []).map(s => s.toLowerCase()),
+      authors: new Set((c.authors || []).map(a => a.toLowerCase().replace(/^@/, ''))),
     };
   });
 
@@ -142,10 +143,31 @@
     if (!it.media.length && !it.domains.length && !it.quote) types.add('text');
     it.types = [...types];
     const catText = [it.text, it.quote?.text || '', it.links.join(' ')].join('\n');
-    it.cats = CATS.filter(c => (c.re && c.re.test(catText)) || it.domains.some(d => c.sites.some(s => d === s || d.endsWith('.' + s)))).map(c => c.name);
-    if (!it.cats.length) it.cats = ['Other'];
-    it.hay = [it.text, it.name, '@' + it.handle, it.quote?.text, it.quote?.handle, it.links.join(' '), it.cats.join(' ')].join('\n').toLowerCase();
+    const handle = it.handle.toLowerCase();
+    it.cats = CATS.filter(c => (c.re && c.re.test(catText)) || c.authors.has(handle) || it.domains.some(d => c.sites.some(s => d === s || d.endsWith('.' + s)))).map(c => c.name);
     return it;
+  }
+
+  // Bookmarks whose text says nothing (e.g. a bare design shot) inherit their author's usual topic:
+  // the most common topic among that author's other bookmarks, if it covers at least half of them.
+  function finishCats(items) {
+    const byAuthor = new Map();
+    for (const it of items) {
+      if (!it.cats.length) continue;
+      const h = it.handle.toLowerCase();
+      const a = byAuthor.get(h) || { n: 0, c: new Map() };
+      a.n++;
+      for (const c of it.cats) a.c.set(c, (a.c.get(c) || 0) + 1);
+      byAuthor.set(h, a);
+    }
+    for (const it of items) {
+      if (!it.cats.length) {
+        const a = byAuthor.get(it.handle.toLowerCase());
+        const top = a && [...a.c].sort((x, y) => y[1] - x[1])[0];
+        it.cats = top && top[1] * 2 >= a.n ? [top[0]] : ['Other'];
+      }
+      it.hay = [it.text, it.name, '@' + it.handle, it.quote?.text, it.quote?.handle, it.links.join(' '), it.cats.join(' ')].join('\n').toLowerCase();
+    }
   }
 
   /* ---------- index ---------- */
@@ -161,6 +183,7 @@
       if (c && !seen.has(c.id)) { seen.add(c.id); cores.push(c); }
     }
     state.items = cores.map(enrich);
+    finishCats(state.items);
     state.byId = new Map(state.items.map(it => [it.id, it]));
     state.source = source;
     state.mini = null;
